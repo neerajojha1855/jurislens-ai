@@ -7,7 +7,7 @@ class DocumentParsingError(Exception):
     pass
 
 
-def extract_text_from_pdf(file_type: bytes) -> tuple(str, int):
+def extract_text_from_pdf(file_type: bytes) -> tuple[str, int]:
     # Extracts text and page count from a PDF file.
     try:
         reader = PdfReader(io.BytesIO(file_type))
@@ -29,7 +29,7 @@ def extract_text_from_pdf(file_type: bytes) -> tuple(str, int):
         
         raise DocumentParsingError(f"Failed to parse PDF document: {str(e)}")
 
-def extract_text_from_docx(file_type: bytes) -> tuple(str, int):
+def extract_text_from_docx(file_type: bytes) -> tuple[str, int]:
     # Extracts text and paragragh/section count from a DOCX file.
     try:
         doc = docx.Document(io.BytesIO(file_type))

@@ -65,7 +65,7 @@ async def analyze_document_endpoint(file: UploadFile=File(...)):
     DOCUMENT_CACHE[doc_id] = extracted_text
 
     try:
-        analysis = analyze_legal_document(extracted_text, metadata, doc_id)
+        analysis = analyze_legal_document(doc_id, extracted_text, metadata)
         return analysis
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI Analysis failed: {str(e)}")

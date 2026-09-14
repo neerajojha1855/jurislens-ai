@@ -54,7 +54,7 @@ def analyze_legal_document(document_id: str, document_text: str, metadata: Docum
                 "title": "Clear consise risk title",
                 "clause_quote": "Exact or near-exact short quote from text",
                 "plain_explanation": "Why this hurts the user in plain terms",
-                "recommendations": "What to ask or negotiate"
+                "recommendation": "What to ask or negotiate"
             }}
         ],
         "lawyer_checklist": [
@@ -67,7 +67,15 @@ def analyze_legal_document(document_id: str, document_text: str, metadata: Docum
     }}
     """
 
-    response = client.models.generate_content(model=GEMINI_MODEL_NAME, contents=prompt, config=types.GenerateContentConfig(system_instructions=ANALYSIS_SYSTEM_PROMPT, response_mime_type="application/json", temperature=0.2))
+    response = client.models.generate_content(
+        model=GEMINI_MODEL_NAME,
+        contents=prompt, 
+        config=types.GenerateContentConfig(
+            system_instruction=ANALYSIS_SYSTEM_PROMPT,
+            response_mime_type="application/json",
+            temperature=0.2
+        )
+    )
     result_data = json.loads(response.text)
 
     return DocumentAnalysisResponse(
