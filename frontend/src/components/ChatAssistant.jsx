@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { MessageSquare, Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { askDocumentQuestion } from '../services/api';
 
-export default function ChatAssistant({ documentId, documentText }) {
+const ChatAssistant = memo(function ChatAssistant({ documentId, documentText }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -100,7 +100,7 @@ export default function ChatAssistant({ documentId, documentText }) {
       )}
 
       {/* Message Stream */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" aria-live="polite">
         {messages.map((msg, idx) => {
           const isUser = msg.role === 'user';
           return (
@@ -175,11 +175,13 @@ export default function ChatAssistant({ documentId, documentText }) {
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder="Ask a question about this document..."
             disabled={isAnswering}
+            aria-label="Chat input"
             className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
           <button
             type="submit"
             disabled={!inputQuery.trim() || isAnswering}
+            aria-label="Send message"
             className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:hover:bg-indigo-600 transition-colors"
           >
             <Send className="w-4 h-4" />
@@ -188,4 +190,6 @@ export default function ChatAssistant({ documentId, documentText }) {
       </div>
     </div>
   );
-}
+});
+
+export default ChatAssistant;

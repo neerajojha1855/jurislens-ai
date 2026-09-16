@@ -5,6 +5,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.gzip import GZipMiddleware
+from starlette.requests import Request
+import asyncio
 from app.config import FRONTEND_URL, MAX_UPLOAD_SIZE_MB
 from app.models.schemas import DocumentAnalysisResponse, DocumentMetadata, ChatRequest, ChatResponse
 from app.services.document import parse_document, DocumentParsingError
@@ -19,11 +22,23 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://127.0.0.1:5173", "*"],
+    allow_origins=[FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Compression
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 DOCUMENT_CACHE = {}
 
@@ -41,13 +56,19 @@ async def analyze_document_endpoint(file: UploadFile=File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file uploaded")
 
-    contents = await file.read()
-    file_size_mb = len(contents) / (1024*1024)
+    # Securely check file size before reading into memory
+    file.file.seek(0, 2)
+    file_size_mb = file.file.tell() / (1024*1024)
+    file.file.seek(0)
+    
     if file_size_mb > MAX_UPLOAD_SIZE_MB:
         raise HTTPException(status_code=400, detail=f"File size exceeds maximum allowed limit of {MAX_UPLOAD_SIZE_MB} MB.")
+        
+    contents = await file.read()
     
     try:
-        extracted_text, count, file_type = parse_document(file.filename, contents)
+        # Offload synchronous parsing to a separate thread to avoid blocking the event loop
+        extracted_text, count, file_type = await asyncio.to_thread(parse_document, file.filename, contents)
     except DocumentParsingError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

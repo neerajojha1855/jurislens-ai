@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { UploadCloud, FileText, AlertCircle, FileCheck, ShieldCheck, Loader2 } from 'lucide-react';
 
-export default function FileUpload({ onFileAnalyzed, isLoading }) {
+const FileUpload = memo(function FileUpload({ onFileAnalyzed, isLoading }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -46,10 +46,19 @@ export default function FileUpload({ onFileAnalyzed, isLoading }) {
   return (
     <div className="w-full max-w-3xl mx-auto my-8 px-4">
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload document dropzone"
         onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
         onDragLeave={() => setIsDragOver(false)}
         onDrop={handleDrop}
         onClick={() => !isLoading && fileInputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!isLoading) fileInputRef.current?.click();
+          }
+        }}
         className={`relative group cursor-pointer rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all duration-200 ${
           isDragOver
             ? 'border-indigo-500 bg-indigo-500/10'
@@ -116,4 +125,6 @@ export default function FileUpload({ onFileAnalyzed, isLoading }) {
       )}
     </div>
   );
-}
+});
+
+export default FileUpload;
