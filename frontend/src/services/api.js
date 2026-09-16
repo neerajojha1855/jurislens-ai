@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// In development, point to the local FastAPI server on port 8000.
+// In production (Render), use a relative path ('') so requests go to the same domain.
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 export async function checkBackendHealth() {
   try {

@@ -1,7 +1,10 @@
+import os
 import uuid
 import math
 from fastapi import FastAPI, UploadFile, File, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.config import FRONTEND_URL, MAX_UPLOAD_SIZE_MB
 from app.models.schemas import DocumentAnalysisResponse, DocumentMetadata, ChatRequest, ChatResponse
 from app.services.document import parse_document, DocumentParsingError
@@ -90,6 +93,23 @@ async def chat_endpoint(request: ChatRequest):
         return answer_legal_question(chat_req)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat generation failed: {str(e)}")
+
+frontend_dist = os.path.join(os.path.dirname(__file__), "../../frontend/dist")
+
+if os.path.exists(os.path.join(frontend_dist, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+# Catch all route to serve the React index.html for all non-api route
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    if full_path.startswith("api/"):
+        return {"error": "API route not found"}
+
+    index_path = os.path.join(frontend_dist, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return {"error": "Frontend not built or not found"}
 
 if __name__ == "__main__":
     import uvicorn
