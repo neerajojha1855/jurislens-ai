@@ -124,7 +124,7 @@ def answer_legal_question(request: ChatRequest) -> ChatResponse:
         model=GEMINI_MODEL_NAME,
         contents=prompt,
         config=types.GenerateContentConfig(
-            system_instructions="You are JurisLens AI an objective legal assistant.",
+            system_instruction="You are JurisLens AI an objective legal assistant.",
             response_mime_type="application/json",
             temperature=0.2
         )
