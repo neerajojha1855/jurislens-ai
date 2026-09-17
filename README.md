@@ -1,6 +1,6 @@
 # JurisLens AI — Legal Document Navigator & Risk Radar
 
-**Deployed Prototype Link:** [https://jurislens-ai-sable.vercel.app](https://jurislens-ai-sable.vercel.app)
+**Deployed Prototype Link:** [https://jurislens-ai.onrender.com](https://jurislens-ai.onrender.com)
 
 > **Vertical:** AI for Legal Assistance & Access  
 > **GenAI Engine:** Google Gemini 2.5 Flash (`gemini-2.5-flash`)  
