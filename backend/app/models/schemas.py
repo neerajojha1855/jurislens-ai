@@ -11,9 +11,9 @@ class DocumentMetadata(BaseModel):
 class RiskItem(BaseModel):
     severity: Literal["HIGH", "MEDIUM", "LOW"]
     title: str
-    clause_quote: str = Field(description="Exact excerpt or section title from the document")
-    plain_explanation: str = Field(description="Why this matters and how it could negatively affect the user")
-    recommendation: str = Field(description="Actionable mitigation or alternative negotiation clause")
+    clause_quote: Optional[str] = Field(default="", description="Exact excerpt or section title from the document")
+    plain_explanation: Optional[str] = Field(default="", description="Why this matters and how it could negatively affect the user")
+    recommendation: Optional[str] = Field(default="", description="Actionable mitigation or alternative negotiation clause")
 
 class ObligationItem(BaseModel):
     party: str = Field(description="The party responsible (e.g. user, service provider, employer)")
